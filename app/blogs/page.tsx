@@ -1,5 +1,7 @@
 import { getBlogs } from "../services/blogs"
 
+export const dynamic = "force-dynamic"
+
 const Blogs = () => {
   const blogs = getBlogs()
 

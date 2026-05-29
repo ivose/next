@@ -1,5 +1,3 @@
-import { getBlogs } from "./services/blogs"
-
 const blogs = () => {
   return (
     <div>
