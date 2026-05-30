@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { getBlogs } from "../services/blogs"
 
 export const dynamic = "force-dynamic"
@@ -11,9 +12,8 @@ const Blogs = () => {
       <ul>
         {blogs.map(blog => (
           <li key={blog.id}>
-            <a href={blog.url} target="_blank" rel="noopener noreferrer">
-              {blog.title}
-            </a>{" "} by {blog.author}, likes {blog.likes}
+            <Link href={`/blogs/${blog.id}`}>{blog.title}</Link>
+            {" "} by {blog.author}, likes {blog.likes}
           </li>
         ))}
       </ul>
