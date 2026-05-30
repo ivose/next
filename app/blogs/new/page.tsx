@@ -1,4 +1,4 @@
-import { createBlog } from "@/app/actions/blogs"
+import { createBlog } from "../../actions/blogs"
 
 const NewBlog = () => {
   return (

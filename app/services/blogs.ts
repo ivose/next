@@ -1,54 +1,47 @@
-type Blog = {
-  id: number
-  title: string
-  author: string
-  url: string
-  likes: number
+import { eq, ilike, desc } from "drizzle-orm"
+import { db } from "../../db"
+import { blogs } from "../../db/schema"
+
+export const getBlogs = async (filter?: string) => {
+  if (filter) {
+    return db
+      .select()
+      .from(blogs)
+      .where(ilike(blogs.title, `%${filter}%`))
+      .orderBy(desc(blogs.likes))
+  }
+
+  return db
+    .select()
+    .from(blogs)
+    .orderBy(desc(blogs.likes))
 }
 
-const initialBlogs: Blog[] = [
-  { id: 1, title: "Otsikko 1", author: "A1", url: "https://cs.ut.ee", likes: 4 },
-  { id: 2, title: "Otsikko 2", author: "A2", url: "https://quretec.com", likes: 1 },
-  { id: 3, title: "Otsikko 3", author: "A3", url: "https://www.helsinki.fi/fi", likes: 2 },
-  { id: 4, title: "Otsikko 4", author: "A4", url: "https://delta.ut.ee", likes: 2 },
-]
-
-const globalForBlogs = globalThis as unknown as {
-  blogs: Blog[] | undefined
-  nextBlogId: number | undefined
-}
-
-if (!globalForBlogs.blogs) {
-  globalForBlogs.blogs = initialBlogs
-  globalForBlogs.nextBlogId = Math.max(...initialBlogs.map(blog => blog.id)) + 1
-}
-
-const blogs = globalForBlogs.blogs
-
-export const getBlogs = () => {
-  return blogs
-}
-
-export const addBlog = (title: string, author: string, url: string) => {
-  blogs.push({
-    id: globalForBlogs.nextBlogId!,
+export const addBlog = async (title: string, author: string, url: string) => {
+  await db.insert(blogs).values({
     title,
     author,
     url,
     likes: 0,
   })
-
-  globalForBlogs.nextBlogId! += 1
 }
 
-export const getBlogById = (id: number) => {
-  return blogs.find(blog => blog.id === id)
+export const getBlogById = async (id: number) => {
+  const result = await db
+    .select()
+    .from(blogs)
+    .where(eq(blogs.id, id))
+
+  return result[0]
 }
 
-export const likeBlog = (id: number) => {
-  const blog = blogs.find(blog => blog.id === id)
+export const likeBlog = async (id: number) => {
+  const blog = await getBlogById(id)
 
   if (blog) {
-    blog.likes += 1
+    await db
+      .update(blogs)
+      .set({ likes: blog.likes + 1 })
+      .where(eq(blogs.id, id))
   }
 }
