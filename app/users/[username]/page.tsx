@@ -2,6 +2,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getUserWithBlogs } from "../../services/users"
 
+export const dynamic = "force-dynamic"
+
 const UserPage = async ({
   params,
 }: {

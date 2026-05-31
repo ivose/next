@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { getUsers } from "../services/users"
 
+export const dynamic = "force-dynamic"
+
 const Users = async () => {
   const users = await getUsers()
 
