@@ -1,79 +1,40 @@
 "use client"
 
-import { useActionState, useEffect, useRef } from "react"
+import { useActionState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { registerUser } from "@/app/actions/users"
-import { useNotification } from "@/app/components/NotificationContext"
+import { registerUser } from "../actions/users"
+import { useNotification } from "../components/NotificationContext"
+import FormField from "../components/FormField"
 
 export default function RegisterPage() {
   const [state, formAction] = useActionState(registerUser, {
-    errors: {},
-    username: "",
-    name: "",
+    error: "",
     success: false,
   })
-
-  const router = useRouter()
   const { showNotification } = useNotification()
-  const successHandled = useRef(false)
+  const router = useRouter()
 
   useEffect(() => {
-    if (state.success && !successHandled.current) {
-      successHandled.current = true
+    if (state.success) {
       showNotification("registered successfully")
       router.push("/login")
     }
-  }, [state.success, showNotification, router])
+  }, [state, showNotification, router])
 
   return (
-    <div>
-      <h2>Register</h2>
-
-      <form action={formAction}>
-        <div>
-          <label>
-            Username
-            <input
-              type="text"
-              name="username"
-              defaultValue={state.username}
-            />
-          </label>
-          {state.errors.username && (
-            <p style={{ color: "red" }}>{state.errors.username}</p>
-          )}
-        </div>
-
-        <div>
-          <label>
-            Name
-            <input type="text" name="name" defaultValue={state.name} />
-          </label>
-        </div>
-
-        <div>
-          <label>
-            Password
-            <input type="password" name="password" />
-          </label>
-          {state.errors.password && (
-            <p style={{ color: "red" }}>{state.errors.password}</p>
-          )}
-        </div>
-
-        <div>
-          <label>
-            Confirm password
-            <input type="password" name="passwordConfirm" />
-          </label>
-          {state.errors.passwordConfirm && (
-            <p style={{ color: "red" }}>
-              {state.errors.passwordConfirm}
-            </p>
-          )}
-        </div>
-
-        <button type="submit">Register</button>
+    <div className="max-w-md mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">Register</h2>
+      <form action={formAction} className="space-y-4">
+        <FormField label="Username" name="username" required />
+        <FormField label="Name" name="name" required />
+        <FormField label="Password" name="password" type="password" required />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Register
+        </button>
+        {state.error && <p className="text-red-600">{state.error}</p>}
       </form>
     </div>
   )
