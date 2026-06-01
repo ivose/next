@@ -1,14 +1,29 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { registerUser } from "@/app/actions/users"
+import { useNotification } from "@/app/components/NotificationContext"
 
 export default function RegisterPage() {
   const [state, formAction] = useActionState(registerUser, {
     errors: {},
     username: "",
     name: "",
+    success: false,
   })
+
+  const router = useRouter()
+  const { showNotification } = useNotification()
+  const successHandled = useRef(false)
+
+  useEffect(() => {
+    if (state.success && !successHandled.current) {
+      successHandled.current = true
+      showNotification("registered successfully")
+      router.push("/login")
+    }
+  }, [state.success, showNotification, router])
 
   return (
     <div>
@@ -32,11 +47,7 @@ export default function RegisterPage() {
         <div>
           <label>
             Name
-            <input
-              type="text"
-              name="name"
-              defaultValue={state.name}
-            />
+            <input type="text" name="name" defaultValue={state.name} />
           </label>
         </div>
 

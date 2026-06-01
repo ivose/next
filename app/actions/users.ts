@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import bcrypt from "bcryptjs"
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
@@ -15,6 +14,7 @@ export const registerUser = async (
     }
     username: string
     name: string
+    success?: boolean
   },
   formData: FormData,
 ) => {
@@ -43,12 +43,14 @@ export const registerUser = async (
     errors.passwordConfirm = "Passwords do not match"
   }
 
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.username, username),
-  })
+  if (username && username.length >= 4) {
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.username, username),
+    })
 
-  if (existingUser) {
-    errors.username = "Username is already taken"
+    if (existingUser) {
+      errors.username = "Username is already taken"
+    }
   }
 
   if (Object.keys(errors).length > 0) {
@@ -56,6 +58,7 @@ export const registerUser = async (
       errors,
       username,
       name,
+      success: false,
     }
   }
 
@@ -63,5 +66,10 @@ export const registerUser = async (
 
   await db.insert(users).values({ username, name, passwordHash })
 
-  redirect("/login")
+  return {
+    errors: {},
+    username: "",
+    name: "",
+    success: true,
+  }
 }
