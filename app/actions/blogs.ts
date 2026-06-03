@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import { addBlog, likeBlog } from "../services/blogs"
+import { addBlog, addBlogToReadingList, likeBlog } from "../services/blogs"
 import { auth } from "../../auth"
 
 export const createBlog = async (
@@ -76,4 +76,13 @@ export const incrementBlogLikes = async (formData: FormData) => {
 
   revalidatePath("/blogs")
   revalidatePath(`/blogs/${id}`)
+}
+
+export const addToReadingList = async (formData: FormData) => {
+  const id = Number(formData.get("id"))
+
+  await addBlogToReadingList(id)
+
+  revalidatePath(`/blogs/${id}`)
+  revalidatePath("/me")
 }
