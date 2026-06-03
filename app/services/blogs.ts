@@ -126,3 +126,21 @@ export const getReadingListByUserId = async (userId: number) => {
     },
   })
 }
+
+export const markReadingListItemAsRead = async (readingListItemId: number) => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    throw new Error("Not logged in")
+  }
+
+  await db
+    .update(readingList)
+    .set({ read: true })
+    .where(
+      and(
+        eq(readingList.id, readingListItemId),
+        eq(readingList.userId, user.id),
+      ),
+    )
+}

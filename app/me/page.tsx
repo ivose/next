@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { getCurrentUser } from "../services/session"
 import { getReadingListByUserId } from "../services/blogs"
 import { generateToken } from "../actions/users"
+import { markAsRead } from "../actions/blogs"
 
 export const dynamic = "force-dynamic"
 
@@ -14,6 +15,8 @@ const MePage = async () => {
   }
 
   const readingList = await getReadingListByUserId(user.id)
+  const unreadBlogs = readingList.filter((item) => !item.read)
+  const readBlogs = readingList.filter((item) => item.read)
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -29,6 +32,79 @@ const MePage = async () => {
       </div>
 
       <hr className="mb-8" />
+
+      <h3 className="text-xl font-semibold mb-4">Reading List</h3>
+
+      {readingList.length === 0 ? (
+        <p className="text-gray-500">Your reading list is empty.</p>
+      ) : (
+        <div className="space-y-8">
+          <section>
+            <h4 className="text-lg font-semibold mb-3">
+              Unread ({unreadBlogs.length})
+            </h4>
+
+            {unreadBlogs.length === 0 ? (
+              <p className="text-gray-500">No unread blogs.</p>
+            ) : (
+              <ul className="space-y-3">
+                {unreadBlogs.map((item) => (
+                  <li
+                    key={item.id}
+                    className="bg-yellow-50 rounded p-4 flex items-center justify-between gap-4"
+                  >
+                    <Link
+                      href={`/blogs/${item.blog.id}`}
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      {item.blog.title}
+                    </Link>
+
+                    <form action={markAsRead}>
+                      <input type="hidden" name="id" value={item.id} />
+                      <button
+                        type="submit"
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                      >
+                        mark as read
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <h4 className="text-lg font-semibold mb-3">
+              Read ({readBlogs.length})
+            </h4>
+
+            {readBlogs.length === 0 ? (
+              <p className="text-gray-500">No read blogs.</p>
+            ) : (
+              <ul className="space-y-3">
+                {readBlogs.map((item) => (
+                  <li
+                    key={item.id}
+                    className="bg-green-50 rounded p-4"
+                  >
+                    <Link
+                      href={`/blogs/${item.blog.id}`}
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      {item.blog.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      )}
+
+
+      <hr className="my-8" />
 
       <h3 className="text-xl font-semibold mb-4">API Token</h3>
 
@@ -50,33 +126,6 @@ const MePage = async () => {
           Generate New Token
         </button>
       </form>
-
-      <hr className="mb-8" />
-
-      <h3 className="text-xl font-semibold mb-4">Reading List</h3>
-
-      {readingList.length === 0 ? (
-        <p className="text-gray-500">Your reading list is empty.</p>
-      ) : (
-        <ul className="space-y-2">
-          {readingList.map((item) => (
-            <li key={item.id} className="border rounded p-3 hover:bg-gray-50">
-              <Link
-                href={`/blogs/${item.blog.id}`}
-                className="text-blue-600 hover:underline"
-              >
-                {item.blog.title}
-              </Link>
-              <span className="text-gray-600">
-                {" "}by {item.blog.author}
-              </span>
-              {item.read && (
-                <strong className="ml-2 text-green-600">(read)</strong>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   )
 }
