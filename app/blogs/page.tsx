@@ -17,6 +17,7 @@ const Blogs = async ({
 
       <form action="/blogs" className="mb-4 flex gap-2">
         <input
+          data-testid="filter-input"
           type="text"
           name="filter"
           defaultValue={filter}
@@ -24,6 +25,7 @@ const Blogs = async ({
           className="border rounded px-3 py-2 flex-1"
         />
         <button
+          data-testid="search-button"
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
@@ -31,7 +33,7 @@ const Blogs = async ({
         </button>
       </form>
 
-      <ul className="space-y-2">
+      <ul data-testid="blogs-list" className="space-y-2">
         {blogs.map((blog) => (
           <li key={blog.id} className="border rounded p-3 hover:bg-gray-50">
             <Link
@@ -41,7 +43,7 @@ const Blogs = async ({
               {blog.title}
             </Link>
             <span className="text-gray-600">
-              {" "}by {blog.author}, likes {blog.likes}
+              {" "}by {blog.author}, {blog.likes} likes
             </span>
           </li>
         ))}

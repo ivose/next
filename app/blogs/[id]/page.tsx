@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { getBlogById, isBlogInReadingList } from "../../services/blogs"
 import { getCurrentUser } from "../../services/session"
-import { incrementBlogLikes, addToReadingList } from "../../actions/blogs"
+import { incrementBlogLikes } from "../../actions/blogs"
 
 export const dynamic = "force-dynamic"
 
@@ -23,10 +23,10 @@ const BlogPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     isLoggedIn && !isOwnBlog && !alreadyInReadingList
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
+    <div data-testid="blog-detail" className="max-w-2xl mx-auto p-6">
+      <h2 data-testid="blog-title" className="text-2xl font-bold mb-2">{blog.title}</h2>
 
-      <p className="text-gray-500 mb-4">by {blog.author}</p>
+      <p data-testid="blog-author" className="text-gray-500 mb-4">by {blog.author}</p>
       <p className="text-gray-500 mb-4">added by {blog.user.name}</p>
 
       <div className="flex items-center gap-4 mb-6">
@@ -44,9 +44,10 @@ const BlogPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
 
         {showAddToReadingListButton && (
-          <form action={addToReadingList}>
-            <input type="hidden" name="id" value={blog.id} />
+          <form action="/api/reading-list/add" method="post">
+            <input type="hidden" name="blogId" value={blog.id} />
             <button
+              data-testid="add-to-reading-list-button"
               type="submit"
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             >

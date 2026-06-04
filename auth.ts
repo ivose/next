@@ -1,36 +1,42 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
-import { db } from "./db"
-import { users } from "./db/schema"
+import { eq } from "drizzle-orm"
+import { db } from "@/db"
+import { users } from "@/db/schema"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     Credentials({
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        username: {},
+        password: {},
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
+        const username = credentials?.username as string | undefined
+        const password = credentials?.password as string | undefined
+
+        if (!username || !password) {
           return null
         }
 
         const user = await db.query.users.findFirst({
-          where: eq(users.username, credentials.username as string),
+          where: eq(users.username, username),
         })
 
-        if (!user || !user.passwordHash) {
+        if (!user) {
           return null
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
+        const passwordCorrect = await bcrypt.compare(
+          password,
           user.passwordHash,
         )
 
-        if (!isValid) {
+        if (!passwordCorrect) {
           return null
         }
 
@@ -42,10 +48,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  pages: {
-    signIn: "/login",
-  },
-  session: {
-    strategy: "jwt",
-  },
 })

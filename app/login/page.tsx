@@ -34,11 +34,12 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4">Login</h2>
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p data-testid="error-message" className="text-red-600 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Username" name="username" required />
         <FormField label="Password" name="password" type="password" required />
         <button
+          data-testid="login-button"
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
