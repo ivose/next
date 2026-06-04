@@ -48,4 +48,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+
+  logger: {
+    error(error) {
+      const authError = error as {
+        name?: string
+        type?: string
+        code?: string
+      }
+
+      if (
+        authError.name === "CredentialsSignin" ||
+        authError.type === "CredentialsSignin" ||
+        authError.code === "credentials"
+      ) {
+        return
+      }
+
+      console.error(error)
+    },
+  },
 })
